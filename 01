@@ -1,0 +1,50 @@
+#define BLYNK_PRINT Serial
+#include <ESP8266_Lib.h>
+#include <BlynkSimpleShieldEsp8266.h>
+#include <Servo.h>
+
+char auth[] = "59a31817009d4f9fbb79d038a81f45b4";
+char ssid[] = "BLYNK";
+char pass[] = "HelloBrobo";
+
+#include <SoftwareSerial.h>
+SoftwareSerial EspSerial(2, 3); // RX, TX
+
+#define ESP8266_BAUD 9600
+
+ESP8266 wifi(&EspSerial);
+
+Servo frontServo;
+
+float accelerometer;
+BLYNK_WRITE(V0){
+  accelerometer = param[1].asFloat(); 
+}
+void setup()
+{
+  Serial.begin(9600);
+  delay(10);
+  EspSerial.begin(ESP8266_BAUD);
+  delay(10);
+  Blynk.begin(auth, wifi, ssid, pass, "192.168.1.27", 8080);
+  delay(10);
+
+  frontServo.attach(8);
+  frontServo.write(90);
+}
+
+void loop()
+{
+  Blynk.run();
+  frontServo.write(90+accelerometer*7);
+  
+}
+
+int moveservo(int first, int last){
+  Serial.println("Start movement");
+    for (int i=first; i<=last; i++){
+      frontServo.write(i);
+      Serial.println(i);
+      delay(100);
+    }
+}
